@@ -3,9 +3,11 @@
 const debug = false;
 
 class simpleSlider {
-  constructor(id, childrenClassName = 'slider-item', prevBtnClass = 'slider-prev-btn', nextBtnClass = 'slider-next-btn') {
+  constructor(id, isAutoChange = false, autoChangeTimer = 5000, childrenClassName = 'slider-item', prevBtnClass = 'slider-prev-btn', nextBtnClass = 'slider-next-btn') {
     debug && console.log('slider constructor');
     this.id = id;
+    this.isAutoChange = isAutoChange;
+    this.autoChangeTimer = autoChangeTimer;
     this.element = document.getElementById(id);
     this.prevBtn = this.element.getElementsByClassName(prevBtnClass)[0];
     this.nextBtn = this.element.getElementsByClassName(nextBtnClass)[0];
@@ -14,7 +16,7 @@ class simpleSlider {
     debug && console.log(this.element, this.children, this.prevBtn, this.nextBtn);
     this.initListeners();
     this.showCurrentSlide();
-    this.timeout = this.setNewTimeout();
+    if (this.isAutoChange) this.timeout = this.setNewTimeout();
     this.setModStyles();
   }
   
@@ -25,8 +27,10 @@ class simpleSlider {
   
   onPrevClick(e) {
     if (e) e.preventDefault();
-    clearTimeout(this.timeout);
-    this.timeout = this.setNewTimeout();
+    if (this.isAutoChange) {
+      clearTimeout(this.timeout);
+      this.timeout = this.setNewTimeout();
+    }
     this.children[this.currentSlideIndex].style.opacity = '0.5';
     if (this.currentSlideIndex > 0)
       this.currentSlideIndex --;
@@ -42,8 +46,10 @@ class simpleSlider {
   
   onNextClick(e) {
     if (e) e.preventDefault();
-    clearTimeout(this.timeout);
-    this.timeout = this.setNewTimeout();
+    if (this.isAutoChange) {
+      clearTimeout(this.timeout);
+      this.timeout = this.setNewTimeout();
+    }
     this.children[this.currentSlideIndex].style.opacity = '0.5';
     if (this.currentSlideIndex < this.children.length - 1)
       this.currentSlideIndex ++;
@@ -67,7 +73,7 @@ class simpleSlider {
   }
   
   setNewTimeout() {
-    return setInterval(this.onNextClick.bind(this), 8000);
+    return setInterval(this.onNextClick.bind(this), this.autoChangeTimer);
   }
   
   setModStyles() {
